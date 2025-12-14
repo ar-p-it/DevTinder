@@ -1,0 +1,16 @@
+{
+  "name": "devtinder",
+  "version": "1.0.0",
+  "description": "tinderfordevs",
+  "main": "index.js",
+  "scripts": {
+    "build": "nodemon src/app.js",
+    "start": "node src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Arpit K",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
