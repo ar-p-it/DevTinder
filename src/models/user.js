@@ -22,3 +22,7 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", userSchema);
+
+// const userModel=mongoose.model("User",userSchema);
+// module.exports=userModel;
+//* schema banane k baad model banate hai "model ka naam",schema =>this is how we create usermodel 
