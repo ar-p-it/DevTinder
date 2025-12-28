@@ -7,73 +7,10 @@ const { validateSignUpData } = require("./utilsorHelper/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
-const {userAuth} = require("./middleware/adminaAuth");
+const { userAuth } = require("./middleware/adminaAuth");
 //express sends data in json and this reads it json
 app.use(express.json());
 app.use(cookieParser());
-
-app.get("/user", async (req, resp) => {
-  try {
-    const userEmail = req.body.emailId;
-    const users = await User.find({ emailId: userEmail });
-    if (users.length === 0) {
-      resp.status(404).send("NoT fOUND");
-    } else {
-      resp.send(users);
-    }
-  } catch {
-    resp.status(204).send("wrong");
-  }
-});
-app.get("/feed", async (res, resp) => {
-  try {
-    const users = await User.find({});
-    resp.send(users);
-  } catch (error) {
-    resp.status(204).send("wrong");
-  }
-});
-// app.get("/delete", async (res, resp) => {
-//   try {
-//     const userId = User.find(req.body.userId);
-//     // resp.send(users);
-//     const user = await User.findByIdAndDelete(userId);
-//   } catch (error) {
-//     resp.status(204).send("wrong");
-//   }
-// });
-app.delete("/delete", async (req, resp) => {
-  try {
-    const deletedUser = await User.findByIdAndDelete(req.body.Id);
-    if (!deletedUser) {
-      return resp.status(404).send("User not found");
-    }
-    resp.send("User deleted");
-  } catch (error) {
-    resp.status(500).send("Server error");
-  }
-});
-app.patch("/patch/:userId", async (req, resp) => {
-  try {
-    const allowedupdates = ["age", "gender"];
-    const isupdateallowed = Object.keys(req.body).every((k) =>
-      allowedupdates.includes(k)
-    );
-    //     const isupdateallowed = Object.keys(req.body).every((k) => {
-    //   return allowedupdates.includes(k);
-    // });
-
-    if (!isupdateallowed) {
-      throw new Error("WRONG UPDATES");
-    }
-    await User.findByIdAndUpdate(req.params?.userId, req.body, {
-      runValidators: true,
-    });
-    resp.send("Success patched");
-  } catch (err) {
-    resp.status(500).send("Server hhh error " + err.message);
-  }
-});
 
 app.post("/signup", async (req, resp) => {
   // const userObj = {
@@ -132,12 +69,14 @@ app.post("/login", async (req, resp) => {
       return resp.status(404).send("EMAIL NOT FOUND");
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await user.validatePassword(password);
+
     if (!isPasswordValid) {
       return resp.status(401).send("INCORRECT PASSWORD");
     }
 
-    const token = await jwt.sign({ _id: user._id }, "Arpitttt");
+    const token = await user.getJWT();
     console.log(token);
 
     resp.cookie("token", token);
@@ -146,9 +85,8 @@ app.post("/login", async (req, resp) => {
     resp.status(400).send("ERROR: " + err.message);
   }
 });
-app.get("/profile",userAuth, async (req, resp) => {
+app.get("/profile", userAuth, async (req, resp) => {
   try {
-
     const userbyid = req.user;
 
     console.log(userbyid);
