@@ -3,9 +3,15 @@ const app = express();
 const connectDB = require("./config/databse");
 const User = require("./models/user");
 const { validateSignUpData } = require("./utilsorHelper/validation");
-app.use(express.json());
+
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
+const {userAuth} = require("./middleware/adminaAuth");
 //express sends data in json and this reads it json
+app.use(express.json());
+app.use(cookieParser());
+
 app.get("/user", async (req, resp) => {
   try {
     const userEmail = req.body.emailId;
@@ -131,7 +137,22 @@ app.post("/login", async (req, resp) => {
       return resp.status(401).send("INCORRECT PASSWORD");
     }
 
+    const token = await jwt.sign({ _id: user._id }, "Arpitttt");
+    console.log(token);
+
+    resp.cookie("token", token);
     resp.status(200).send("LOGIN SUCCESS");
+  } catch (err) {
+    resp.status(400).send("ERROR: " + err.message);
+  }
+});
+app.get("/profile",userAuth, async (req, resp) => {
+  try {
+
+    const userbyid = req.user;
+
+    console.log(userbyid);
+    resp.send(userbyid);
   } catch (err) {
     resp.status(400).send("ERROR: " + err.message);
   }
