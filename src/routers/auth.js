@@ -79,8 +79,14 @@ authRouter.post("/login", async (req, resp) => {
   }
 });
 
-module.exports = authRouter;
+authRouter.post("/logout", async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.send("Log out Sucess");
+});
 
+module.exports = authRouter;
 
 // const express = require("express");
 // const bcrypt = require("bcrypt");

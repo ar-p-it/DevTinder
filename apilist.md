@@ -1,10 +1,9 @@
-
+# Devtinder API
 
 ### authRouter
 POST /signup
 POST /login
 POST /logout
-
 
 ### profileRouter
 -GET /profile/view
