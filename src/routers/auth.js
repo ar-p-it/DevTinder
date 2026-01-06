@@ -89,6 +89,7 @@ authRouter.post("/logout", async (req, res) => {
 module.exports = authRouter;
 
 // const express = require("express");
+
 // const bcrypt = require("bcrypt");
 // const authRouter = express.Router();
 
