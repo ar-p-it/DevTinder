@@ -15,6 +15,16 @@ PATCH /profile/password
 -POST /request/send/ignored/:userId
 -POST /request/send/accepted/:requestId
 -POST /request/send/rejected/requestId
+<!-- *{Dynamic} -->
+-POST /request/send/:status/requestId
+<!-- *{Dynamic} -->
+
+
+
+
+-get /request/received
+-get /request/review/rejected/:requestId
+
 
 ### userRouter
 GET /user/connection
