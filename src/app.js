@@ -15,7 +15,17 @@ app.use(cookieParser());
 const authRouter = require("./routers/auth");
 const profileRouter = require("./routers/profile");
 const requestRouter = require("./routers/requests");
-const useRouter = require("./routers/use")
+const useRouter = require("./routers/use");
+
+const cors = require("cors");
+// app.use(cors( ));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // or 3000 (React port)
+    credentials: true,
+  })
+);
+
 app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
