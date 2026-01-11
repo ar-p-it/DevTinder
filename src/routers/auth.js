@@ -20,17 +20,43 @@ authRouter.post("/signup", async (req, resp) => {
     //!Encrypt the password
     //!UTILITY FUNCTION OR HEPER FUNCTION TO DO IT
     validateSignUpData(req);
-    const { firstName, lastName, emailId, password } = req.body;
-    const passwordhash = await bcrypt.hash(password, 10);
-    // console.log(passwordhash);
+    // const { firstName, lastName, emailId, password } = req.body;
+    // const passwordhash = await bcrypt.hash(password, 10);
+    // // console.log(passwordhash);
 
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: passwordhash,
-    });
-    await user.save();
+    // const user = new User({
+    //   firstName,
+    //   lastName,
+    //   emailId,
+    //   password: passwordhash,
+    // });
+    // await user.save();
+    const {
+  firstName,
+  lastName,
+  emailId,
+  password,
+  gender,
+  age,
+  photoUrl,
+  about
+} = req.body;
+
+const passwordhash = await bcrypt.hash(password, 10);
+
+const user = new User({
+  firstName,
+  lastName,
+  emailId,
+  password: passwordhash,
+  gender,   // required
+  age,
+  photoUrl,
+  about
+});
+
+await user.save();
+
 
     resp.status(201).send("User added successfully");
   } catch (error) {
@@ -49,35 +75,87 @@ authRouter.post("/signup", async (req, resp) => {
   // });
 });
 
-authRouter.post("/login", async (req, resp) => {
+// authRouter.post("/login", async (req, resp) => {
+//   try {
+//     const { emailId, password } = req.body;
+
+//     if (!emailId || !password) {
+//       throw new Error("Email and password are required");
+//     }
+
+//     const user = await User.findOne({ emailId });
+//     if (!user) {
+//       return resp.status(404).send("EMAIL NOT FOUND");
+//     }
+
+//     // const isPasswordValid = await bcrypt.compare(password, user.password);
+//     const isPasswordValid = await user.validatePassword(password);
+
+//     if (!isPasswordValid) {
+//       return resp.status(401).send("INCORRECT PASSWORD");
+//     }
+
+//     const token = await user.getJWT();
+//     // console.log(token);
+
+//     resp.cookie("token", token);
+//     // resp.status(200).send("LOGIN SUCCESS");
+//     resp.send(user);
+
+//   } catch (err) {
+//     resp.status(400).send("ERROR: " + err.message);
+//   }
+// });
+
+
+// ✅ NEW CODE (structured error messages)
+
+authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
 
+    // 🔹 Validation
     if (!emailId || !password) {
-      throw new Error("Email and password are required");
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
     }
 
+    // 🔹 User not found
     const user = await User.findOne({ emailId });
     if (!user) {
-      return resp.status(404).send("EMAIL NOT FOUND");
+      return res.status(404).json({
+        success: false,
+        message: "No account found with this email",
+      });
     }
 
-    // const isPasswordValid = await bcrypt.compare(password, user.password);
+    // 🔹 Password mismatch
     const isPasswordValid = await user.validatePassword(password);
-
     if (!isPasswordValid) {
-      return resp.status(401).send("INCORRECT PASSWORD");
+      return res.status(401).json({
+        success: false,
+        message: "Incorrect password",
+      });
     }
 
+    // 🔹 Success
     const token = await user.getJWT();
-    // console.log(token);
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+    });
 
-    resp.cookie("token", token);
-    // resp.status(200).send("LOGIN SUCCESS");
-    resp.send(user);
-
+    return res.status(200).json({
+      success: true,
+      user,
+    });
   } catch (err) {
-    resp.status(400).send("ERROR: " + err.message);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again.",
+    });
   }
 });
 
