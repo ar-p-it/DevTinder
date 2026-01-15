@@ -18,18 +18,17 @@ const validateEditData = (req) => {
     "lastName",
     "age",
     "gender",
-    "emailId",
     "about",
+    "photoURL",
+    "skills",
   ];
 
   const updates = Object.keys(req.body);
 
-  // 1️⃣ Empty request body check
   if (updates.length === 0) {
     throw new Error("No fields provided for update");
   }
 
-  // 2️⃣ Allow only whitelisted fields
   const isValidOperation = updates.every((field) =>
     allowedFields.includes(field)
   );
@@ -38,24 +37,37 @@ const validateEditData = (req) => {
     throw new Error("Invalid fields in update request");
   }
 
-  // 3️⃣ Field-specific validation
   if (req.body.firstName && req.body.firstName.length < 4) {
     throw new Error("First name must be at least 4 characters");
   }
 
-  if (req.body.emailId && !validator.isEmail(req.body.emailId)) {
-    throw new Error("Invalid email format");
+  if (
+    req.body.age !== undefined &&
+    (typeof req.body.age !== "number" || Number.isNaN(req.body.age))
+  ) {
+    throw new Error("Age must be a valid number");
   }
 
   if (
     req.body.gender &&
-    !["male", "female"].includes(req.body.gender)
+    !["male", "female", "others"].includes(
+      req.body.gender.toLowerCase()
+    )
   ) {
-    throw new Error("Gender must be male or female");
+    throw new Error("Invalid gender value");
+  }
+
+  if (
+    req.body.skills &&
+    (!Array.isArray(req.body.skills) ||
+      req.body.skills.some(skill => skill.trim() === ""))
+  ) {
+    throw new Error("Skills must be a valid array");
   }
 
   return true;
 };
+
 
 module.exports = {
   validateSignUpData,
