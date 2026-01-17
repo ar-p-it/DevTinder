@@ -19,7 +19,7 @@ const validateEditData = (req) => {
     "age",
     "gender",
     "about",
-    "photoURL",
+    "photoUrl",
     "skills",
   ];
 
@@ -30,7 +30,7 @@ const validateEditData = (req) => {
   }
 
   const isValidOperation = updates.every((field) =>
-    allowedFields.includes(field)
+    allowedFields.includes(field),
   );
 
   if (!isValidOperation) {
@@ -50,9 +50,7 @@ const validateEditData = (req) => {
 
   if (
     req.body.gender &&
-    !["male", "female", "others"].includes(
-      req.body.gender.toLowerCase()
-    )
+    !["male", "female", "others"].includes(req.body.gender.toLowerCase())
   ) {
     throw new Error("Invalid gender value");
   }
@@ -60,14 +58,13 @@ const validateEditData = (req) => {
   if (
     req.body.skills &&
     (!Array.isArray(req.body.skills) ||
-      req.body.skills.some(skill => skill.trim() === ""))
+      req.body.skills.some((skill) => skill.trim() === ""))
   ) {
     throw new Error("Skills must be a valid array");
   }
 
   return true;
 };
-
 
 module.exports = {
   validateSignUpData,

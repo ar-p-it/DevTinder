@@ -19,6 +19,11 @@ profileRouter.get("/profile/view", userAuth, async (req, resp) => {
 
 profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
   try {
+    // Normalize photo URL casing from clients (photoURL -> photoUrl)
+    if (req.body && req.body.photoURL && !req.body.photoUrl) {
+      req.body.photoUrl = req.body.photoURL;
+      delete req.body.photoURL;
+    }
     validateEditData(req);
     const user = req.user;
     Object.keys(req.body).forEach((key) => {
