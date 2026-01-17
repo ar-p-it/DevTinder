@@ -31,8 +31,8 @@ userRouter.get("/user/requests/connections", userAuth, async (req, res) => {
       status: "accepted",
       $or: [{ toUserId: loggedInUserId }, { fromUserId: loggedInUserId }],
     })
-      .populate("fromUserId", "firstName lastName email")
-      .populate("toUserId", "firstName lastName email");
+      .populate("fromUserId", "firstName lastName email photoUrl gender age about lookingFor height ")
+      .populate("toUserId", "firstName lastName email photoUrl gender age about lookingFor height");
 
     const connections = connectionRequests.map((row) => {
       if (row.fromUserId._id.equals(loggedInUserId)) {
