@@ -20,6 +20,7 @@ authRouter.post("/signup", async (req, resp) => {
     //!Encrypt the password
     //!UTILITY FUNCTION OR HEPER FUNCTION TO DO IT
     validateSignUpData(req);
+    // console.log("hii");
     // const { firstName, lastName, emailId, password } = req.body;
     // const passwordhash = await bcrypt.hash(password, 10);
     // // console.log(passwordhash);
@@ -32,35 +33,43 @@ authRouter.post("/signup", async (req, resp) => {
     // });
     // await user.save();
     const {
-  firstName,
-  lastName,
-  emailId,
-  password,
-  gender,
-  age,
-  photoUrl,
-  about
-} = req.body;
+      firstName,
+      lastName,
+      emailId,
+      password,
+      gender,
+      age,
+      photoUrl,
+      about,
+    } = req.body;
 
-const passwordhash = await bcrypt.hash(password, 10);
+    const passwordhash = await bcrypt.hash(password, 10);
 
-const user = new User({
-  firstName,
-  lastName,
-  emailId,
-  password: passwordhash,
-  gender,   // required
-  age,
-  photoUrl,
-  about
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordhash,
+      gender, // required
+      age,
+      photoUrl,
+      about,
+    });
+
+    await user.save();
+
+    // resp.status(201).send("User added successfully");
+
+resp.status(201).json({ 
+  success: true,
+  message: "User added successfully" 
 });
-
-await user.save();
-
-
-    resp.status(201).send("User added successfully");
   } catch (error) {
-    resp.status(400).send(error.message);
+    // resp.status(400).send(error.message);
+    resp.status(400).json({ 
+  success: false,
+  message: error.message 
+});
   }
 
   // console.log(req.body);
@@ -106,7 +115,6 @@ await user.save();
 //     resp.status(400).send("ERROR: " + err.message);
 //   }
 // });
-
 
 // ✅ NEW CODE (structured error messages)
 
@@ -170,13 +178,12 @@ authRouter.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     sameSite: "lax", // must match login
-    secure: false,   // true in production (https)
-    path: "/",       // VERY IMPORTANT
+    secure: false, // true in production (https)
+    path: "/", // VERY IMPORTANT
   });
 
   res.status(200).json({ message: "Logged out successfully" });
 });
-
 
 module.exports = authRouter;
 

@@ -1,17 +1,37 @@
 const validator = require("validator");
 
+
 const validateSignUpData = (req) => {
-  const { firstName, lastName, emailId, password } = req.body;
+  const { firstName, lastName, emailId, password, gender } = req.body;
+
   if (!firstName || !lastName) {
-    throw new Error("Name not valid ");
-  } else if (firstName.length < 4 || lastName.length > 20) {
-    throw new Error("Name not in range of 4 to 20 chars ");
-  } else if (!validator.isEmail(emailId)) {
-    throw new Error("Not an email  ");
-  } else if (!validator.isStrongPassword(password)) {
-    throw new Error("Weak passwrod");
+    throw new Error("Name not valid");
   }
+
+  if (firstName.length < 4 || firstName.length > 20) {
+    throw new Error("First name must be between 4 and 20 characters");
+  }
+
+  if (lastName.length < 4 || lastName.length > 20) {
+    throw new Error("Last name must be between 4 and 20 characters");
+  }
+
+  if (!emailId || !validator.isEmail(emailId)) {
+    throw new Error("Not a valid email");
+  }
+
+  if (!password || !validator.isStrongPassword(password)) {
+    throw new Error("Weak password");
+  }
+
+  if (!gender) {
+    throw new Error("Gender is required");
+  }
+
+  return true;
 };
+
+
 const validateEditData = (req) => {
   const allowedFields = [
     "firstName",
