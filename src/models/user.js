@@ -60,8 +60,6 @@ const bcrypt = require("bcrypt");
 //   { timestamps: true }
 // );
 
-
-
 const userSchema = new mongoose.Schema(
   {
     firstName: {
@@ -182,12 +180,16 @@ const userSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.methods.getJWT = async function name(params) {
   const user = this;
-  const token = await jwt.sign({ _id: user._id }, "Arpitttt", {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET is not set in environment variables");
+  }
+  const token = await jwt.sign({ _id: user._id }, secret, {
     expiresIn: "7D",
   });
   return token;

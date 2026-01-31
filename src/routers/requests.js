@@ -4,7 +4,8 @@ const { userAuth } = require("../middleware/adminaAuth");
 const ConnectionReqModel = require("../models/connectionRequest");
 const User = require("../models/user");
 
-
+// const sendEmail = require("../utils/sendEmail");
+const sendEmail = require("../utilsorHelper/sendEmail");
 
 requestRouter.post(
   "/request/send/:status/:toUserId",
@@ -28,7 +29,9 @@ requestRouter.post(
       };
       const toUser = await User.findById(toUserId);
       if (!toUser) {
+        return res.status(404).json({ message: "User not found" });
       }
+
       const existingConnectionRequest = await ConnectionReqModel.findOne({
         $or: [
           { fromUserId, toUserId },
@@ -47,6 +50,18 @@ requestRouter.post(
 
       // console.log("Sending Connection request");
       const data = await connectionRequest.save();
+
+      let emailRes;
+      try {
+        emailRes = await sendEmail.run(
+          "A new friend request from " + req.user.firstName,
+          req.user.firstName + " is " + status + " in " + toUser.firstName,
+        );
+        console.log("Email sent:", emailRes);
+      } catch (emailErr) {
+        console.error("Email failed:", emailErr.message);
+      }
+
       res.json({
         // message: "DONE CONNECTION",
         message: statusMessages[status],
@@ -57,7 +72,7 @@ requestRouter.post(
     } catch (err) {
       res.status(404).send("Error: " + err.message);
     }
-  }
+  },
 );
 
 requestRouter.post(
@@ -68,7 +83,6 @@ requestRouter.post(
       const loggedInUser = req.user;
       // const { status, reqId } = req.params;
       const { status, requestId } = req.params;
-
 
       const allowedStatus = ["rejected", "accepted"];
 
@@ -93,6 +107,6 @@ requestRouter.post(
     } catch (err) {
       res.status(404).send("Error: " + err.message);
     }
-  }
+  },
 );
 module.exports = requestRouter;

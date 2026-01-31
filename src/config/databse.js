@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
-  await mongoose.connect(
-"mongodb+srv://mainarpithoon_db_user:dDujPRJoIEgzLFYV@clusteron6jan.jqnrnkc.mongodb.net/devTinder"
-  );
-
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error("MONGODB_URI is not set in environment variables");
+  }
+  await mongoose.connect(uri);
 };
 
- module.exports = connectDB;
+module.exports = connectDB;

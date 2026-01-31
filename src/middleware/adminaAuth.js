@@ -23,7 +23,11 @@ const userAuth = async (req, resp, next) => {
       return resp.status(401).send("You r not logged");
     }
     //validate the token
-    const decodedMessage = await jwt.verify(token, "Arpitttt");
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not set in environment variables");
+    }
+    const decodedMessage = await jwt.verify(token, secret);
     // console.log(decodedMessage);
     const { _id } = decodedMessage;
     // console.log(_id);
