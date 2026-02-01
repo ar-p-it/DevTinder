@@ -1,0 +1,47 @@
+const cron = require("node-cron");
+const { subDays, startOfDay, endOfDay } = require("date-fns");
+const sendEmail = require("./sendEmail");
+const ConnectionRequestModel = require("../models/connectionRequest");
+
+// This job will run at the configured schedule (default: once a year on Jan 1 at 08:00)
+const schedule = process.env.CRON_SCHEDULE || "0 8 1 1 *";
+console.log("Cron: registered schedule", schedule);
+cron.schedule(schedule, async () => {
+  // Send emails to all people who got requests the previous day
+  try {
+    // Previous day's window
+    const yesterday = subDays(new Date(), 1);
+
+    const yesterdayStart = startOfDay(yesterday);
+    const yesterdayEnd = endOfDay(yesterday);
+
+    const pendingRequests = await ConnectionRequestModel.find({
+      status: "interested",
+      createdAt: {
+        $gte: yesterdayStart,
+        $lt: yesterdayEnd,
+      },
+    }).populate("fromUserId toUserId");
+
+    const listOfEmails = [
+      ...new Set(pendingRequests.map((req) => req.toUserId.emailId)),
+    ];
+
+    console.log("Cron: pending request emails", listOfEmails);
+
+    for (const email of listOfEmails) {
+      // Send Emails
+      try {
+        const res = await sendEmail.run(
+          "New Friend Requests pending for " + email,
+          "Ther eare so many frined reuests pending, please login to DevTinder.in and accept or reject the reqyests.",
+        );
+        console.log(res);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});

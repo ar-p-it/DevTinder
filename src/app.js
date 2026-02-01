@@ -1,5 +1,5 @@
 require("dotenv").config();
-
+const http = require("http");
 const express = require("express");
 const app = express();
 const connectDB = require("./config/databse");
@@ -18,14 +18,17 @@ const authRouter = require("./routers/auth");
 const profileRouter = require("./routers/profile");
 const requestRouter = require("./routers/requests");
 const useRouter = require("./routers/use");
-
+// Register scheduled jobs
+require("./utilsorHelper/cronJob");
 const cors = require("cors");
+const { initialiseSocket } = require("./utilsorHelper/socket");
+
 // app.use(cors( ));
 app.use(
   cors({
     origin: "http://localhost:5173", // or 3000 (React port)
     credentials: true,
-  })
+  }),
 );
 
 app.use("/", authRouter);
@@ -42,10 +45,12 @@ app.use("/", useRouter);
 //   .catch((err) => {
 //     console.log(err);
 //   });
+const server = http.createServer(app);
+initialiseSocket(server);
 connectDB()
   .then(() => {
     console.log("DB Connected");
-    app.listen(3050, () => console.log("Server running on 3050"));
+    server.listen(3050, () => console.log("Server running on 3050"));
   })
   .catch(console.error);
 
