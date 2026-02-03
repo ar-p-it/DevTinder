@@ -22,6 +22,7 @@ const useRouter = require("./routers/use");
 require("./utilsorHelper/cronJob");
 const cors = require("cors");
 const { initialiseSocket } = require("./utilsorHelper/socket");
+const chatRouter = require("./routers/chat");
 
 // app.use(cors( ));
 app.use(
@@ -32,6 +33,7 @@ app.use(
 );
 
 app.use("/", authRouter);
+app.use("/", chatRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", useRouter);
@@ -46,7 +48,7 @@ app.use("/", useRouter);
 //     console.log(err);
 //   });
 const server = http.createServer(app);
-initialiseSocket(server);
+const io = initialiseSocket(server);
 connectDB()
   .then(() => {
     console.log("DB Connected");
