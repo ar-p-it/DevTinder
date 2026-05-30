@@ -14,7 +14,7 @@ const initialiseSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("✅ User connected:", socket.id);
+    // console.log("✅ User connected:", socket.id);
 
     // Join chat room
     socket.on("joinChat", async ({ firstName, lastName, userId, toUserId }) => {
@@ -25,7 +25,7 @@ const initialiseSocket = (server) => {
 
       const roomId = [userId, toUserId].sort().join("_");
       socket.join(roomId);
-      console.log(`👥 User ${firstName} ${lastName} joined room ${roomId}`);
+      // console.log(`👥 User ${firstName} ${lastName} joined room ${roomId}`);
     });
 
     // Handle new message
@@ -74,7 +74,7 @@ const initialiseSocket = (server) => {
         };
 
         io.to(roomId).emit("messageReceived", payload);
-        console.log(`📨 Message sent in room ${roomId} by ${userId}`);
+        // console.log(`📨 Message sent in room ${roomId} by ${userId}`);
       } catch (err) {
         console.error("❌ Send message error:", err);
         // Optional: emit error to client
